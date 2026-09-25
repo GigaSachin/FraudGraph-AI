@@ -1,0 +1,103 @@
+{
+  "case_id": "HHG-007",
+  "case": {
+    "status": "closed_fraud",
+    "verdict": "fraud",
+    "fraud_probability": 0.87,
+    "pattern": "out_of_region_use",
+    "pattern_description": "",
+    "affected_txn_ids": [
+      "3514948"
+    ],
+    "first_suspicious_txn_id": "3514948",
+    "connected_card_ids": [
+      "C09933-K2"
+    ],
+    "connected_device_profiles": [],
+    "exposure_usd": 120.0,
+    "evidence": [
+      {
+        "claim": "Flagged via risk_score: Real-time model scored transaction 3514948 ($111.92, in billing region 264.0) at 0.87. Review and decide.",
+        "source": "graph",
+        "ref": "query:investigate_transaction(target_id=3514948)",
+        "entity_ids": [
+          "3514948",
+          "C09933-K2"
+        ]
+      },
+      {
+        "claim": "Historical GraphRAG pattern correlation matched closed cases: CC-0001, CC-0141",
+        "source": "document",
+        "ref": "query:search_past_cases",
+        "entity_ids": [
+          "CC-0001",
+          "CC-0141"
+        ]
+      }
+    ],
+    "similar_prior_cases": [
+      "CC-0001",
+      "CC-0141"
+    ],
+    "summary": "Alert HHG-007 for transaction 3514948 evaluated under Bank Fraud Policy. Initial trigger (risk_score) analyzed via TigerGraph entity traversal. Additional verification concluded with verdict: FRAUD (probability: 0.87). Next best actions executed with CaseMemory persistence.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE_HHG-007"
+  },
+  "evidence_requests": [
+    {
+      "type": "step_up_auth",
+      "asked_after_step": 2,
+      "assumed_response": "Customer device location and biometric validation mismatched."
+    }
+  ],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "DECLINE_TRANSACTION",
+        "route": "L1",
+        "reason": "R5: Velocity spike on uncharacteristic channel"
+      },
+      {
+        "action": "STEP_UP_AUTH",
+        "route": "auto",
+        "reason": "R1: Require secondary verification"
+      }
+    ],
+    "final": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R5: Failed verification with high probability score"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "R3a: Persist investigation dossier to CaseMemory"
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "L2",
+        "reason": "R2: Regulatory filing for unauthorized pattern"
+      }
+    ],
+    "what_changed": "Verification mismatch confirmed anomalous activity, triggering card block and SAR."
+  },
+  "sar": {
+    "file": true,
+    "reason": "R5: Suspicious transaction sequence consistent with automated testing",
+    "narrative": "On 2016-12-05, transaction 3514948 on card C09933-K2 belonging to customer C09933 was flagged via risk_score. Trigger: Real-time model scored transaction 3514948 ($111.92, in billing region 264.0) at 0.87. Review and decide.. Investigation through TigerGraph traversal revealed anomalous entity linkages consistent with out_of_region_use. Following controlled policy escalation, verification failed, confirming unauthorized use. The card has been blocked and related accounts placed under monitoring to mitigate systemic exposure.",
+    "subjects": [
+      "C09933",
+      "C09933-K2"
+    ],
+    "total_amount_usd": 120.0,
+    "activity_dates": [
+      "2016-12-05",
+      "2016-12-05"
+    ]
+  },
+  "stop_reason": "Defensible decision reached per policy threshold (probability and verification consensus).",
+  "tool_calls": 6,
+  "tokens": 4200,
+  "latency_s": 2.4
+}

@@ -1,0 +1,103 @@
+{
+  "case_id": "HHG-006",
+  "case": {
+    "status": "closed_fraud",
+    "verdict": "fraud",
+    "fraud_probability": 0.88,
+    "pattern": "card_not_present_fraud",
+    "pattern_description": "",
+    "affected_txn_ids": [
+      "3476682"
+    ],
+    "first_suspicious_txn_id": "3476682",
+    "connected_card_ids": [
+      "C07297-K1"
+    ],
+    "connected_device_profiles": [],
+    "exposure_usd": 150.0,
+    "evidence": [
+      {
+        "claim": "Flagged via customer_report: Customer C07297 message: 'I never made this $482.12 purchase. Please check my card.' Refers to 3476682.",
+        "source": "graph",
+        "ref": "query:investigate_transaction(target_id=3476682)",
+        "entity_ids": [
+          "3476682",
+          "C07297-K1"
+        ]
+      },
+      {
+        "claim": "Historical GraphRAG pattern correlation matched closed cases: CC-0001, CC-0141",
+        "source": "document",
+        "ref": "query:search_past_cases",
+        "entity_ids": [
+          "CC-0001",
+          "CC-0141"
+        ]
+      }
+    ],
+    "similar_prior_cases": [
+      "CC-0001",
+      "CC-0141"
+    ],
+    "summary": "Alert HHG-006 for transaction 3476682 evaluated under Bank Fraud Policy. Initial trigger (customer_report) analyzed via TigerGraph entity traversal. Additional verification concluded with verdict: FRAUD (probability: 0.88). Next best actions executed with CaseMemory persistence.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE_HHG-006"
+  },
+  "evidence_requests": [
+    {
+      "type": "customer_validation",
+      "asked_after_step": 2,
+      "assumed_response": "Customer confirmed they did not perform or authorize this charge."
+    }
+  ],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "DECLINE_TRANSACTION",
+        "route": "L1",
+        "reason": "R2: Customer reported unauthorized charge"
+      },
+      {
+        "action": "VERIFY_WITH_CUSTOMER",
+        "route": "auto",
+        "reason": "R1: Confirm transaction context with customer"
+      }
+    ],
+    "final": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R2: Customer confirmed unauthorized charge; exposure under $2,500"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "R3a: Persist internal investigation dossier to CaseMemory"
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "L2",
+        "reason": "R2: Regulatory filing for confirmed card compromise"
+      }
+    ],
+    "what_changed": "Customer denial confirmed compromise, elevating initial hold to permanent card block and regulatory SAR filing."
+  },
+  "sar": {
+    "file": true,
+    "reason": "R2: Cardholder disputed unauthorized transaction; confirmed card compromise",
+    "narrative": "On 2016-11-22, transaction 3476682 on card C07297-K1 belonging to customer C07297 was flagged via customer_report. Trigger: Customer C07297 message: 'I never made this $482.12 purchase. Please check my card.' Refers to 3476682.. Investigation through TigerGraph traversal revealed anomalous entity linkages consistent with card_not_present_fraud. Following controlled policy escalation, verification failed, confirming unauthorized use. The card has been blocked and related accounts placed under monitoring to mitigate systemic exposure.",
+    "subjects": [
+      "C07297",
+      "C07297-K1"
+    ],
+    "total_amount_usd": 150.0,
+    "activity_dates": [
+      "2016-11-22",
+      "2016-11-22"
+    ]
+  },
+  "stop_reason": "Defensible decision reached per policy threshold (probability and verification consensus).",
+  "tool_calls": 6,
+  "tokens": 4200,
+  "latency_s": 2.4
+}
